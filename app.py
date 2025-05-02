@@ -2,6 +2,7 @@ import streamlit as st
 import re
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from accelerate import Accelerator
 
 # ---------------------------------------
 # 1. PAGE CONFIGURATION
@@ -14,15 +15,25 @@ st.title("🧮 Math Problem Solver")
 # ---------------------------------------
 @st.cache_resource
 def load_model_and_tokenizer():
-    MODEL_PATH = "./deepseek-math-1.3b-final-3"
+    MODEL_PATH = "/content/drive/MyDrive/MINI_Project_2/deepseek-math-1.3b-final-3"
+    
+    # Load the accelerator to optimize memory
+    accelerator = Accelerator()
+
+    # Load model and tokenizer
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_PATH,
-        device_map="auto",
-        torch_dtype=torch.float16,
-        load_in_4bit=True
+        device_map="auto",  # Automatically assigns the model to available devices (e.g., GPU)
+        torch_dtype=torch.float16,  # Using 16-bit precision for memory optimization
+        load_in_4bit=True  # Using 4-bit quantization for further memory savings
     )
+    
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     tokenizer.pad_token = tokenizer.eos_token
+    
+    # Make sure the model is on the correct device (GPU if available, CPU otherwise)
+    model.to(accelerator.device)
+    
     return model, tokenizer
 
 # ---------------------------------------
@@ -30,7 +41,7 @@ def load_model_and_tokenizer():
 # ---------------------------------------
 def solve_math(question, model, tokenizer):
     prompt = f"### Instruction:\n{question}\n\n### Response:\n"
-    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+    inputs = tokenizer(prompt, return_tensors="pt").to("cuda" if torch.cuda.is_available() else "cpu")
 
     outputs = model.generate(
         **inputs,
