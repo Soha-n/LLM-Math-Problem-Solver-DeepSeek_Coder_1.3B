@@ -1,3 +1,5 @@
+# app.py
+
 import streamlit as st
 import re
 import torch
@@ -14,11 +16,12 @@ st.title("🧮 Math Problem Solver")
 # ---------------------------------------
 @st.cache_resource
 def load_model_and_tokenizer():
-    MODEL_PATH = "./deepseek-math-1.3b-final-3"
-    # Load the model without using `accelerate`
+    MODEL_PATH = "/content/drive/MyDrive/MINI_Project_2/deepseek-math-1.3b-final-3"
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_PATH,
-        torch_dtype=torch.float16,  # Use float16 for efficiency if possible
+        device_map="auto",
+        torch_dtype=torch.float16,
+        load_in_4bit=True
     )
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     tokenizer.pad_token = tokenizer.eos_token
@@ -29,7 +32,7 @@ def load_model_and_tokenizer():
 # ---------------------------------------
 def solve_math(question, model, tokenizer):
     prompt = f"### Instruction:\n{question}\n\n### Response:\n"
-    inputs = tokenizer(prompt, return_tensors="pt").to("cuda" if torch.cuda.is_available() else "cpu")
+    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
 
     outputs = model.generate(
         **inputs,
