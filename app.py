@@ -2,8 +2,6 @@ import streamlit as st
 import re
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from accelerate import Accelerator
-
 
 # ---------------------------------------
 # 1. PAGE CONFIGURATION
@@ -17,24 +15,13 @@ st.title("🧮 Math Problem Solver")
 @st.cache_resource
 def load_model_and_tokenizer():
     MODEL_PATH = "./deepseek-math-1.3b-final-3"
-    
-    # Load the accelerator to optimize memory
-    accelerator = Accelerator()
-
-    # Load model and tokenizer
+    # Load the model without using `accelerate`
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_PATH,
-        device_map="auto",  # Automatically assigns the model to available devices (e.g., GPU)
-        torch_dtype=torch.float16,  # Using 16-bit precision for memory optimization
-        load_in_4bit=True  # Using 4-bit quantization for further memory savings
+        torch_dtype=torch.float16,  # Use float16 for efficiency if possible
     )
-    
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     tokenizer.pad_token = tokenizer.eos_token
-    
-    # Make sure the model is on the correct device (GPU if available, CPU otherwise)
-    model.to(accelerator.device)
-    
     return model, tokenizer
 
 # ---------------------------------------
