@@ -1,5 +1,3 @@
-!pip install accelerate
-
 import streamlit as st
 import re
 import torch
