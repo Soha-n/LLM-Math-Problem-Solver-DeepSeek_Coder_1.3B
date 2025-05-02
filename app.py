@@ -1,10 +1,7 @@
-# app.py
-
 import streamlit as st
 import re
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from peft import PeftModel, PeftConfig
 
 # ---------------------------------------
 # 1. PAGE CONFIGURATION
@@ -17,26 +14,15 @@ st.title("🧮 Math Problem Solver")
 # ---------------------------------------
 @st.cache_resource
 def load_model_and_tokenizer():
-    MODEL_PATH = "./deepseek-math-1.3b-final-3"  # Update path if needed
-
-    # Load adapter config
-    peft_config = PeftConfig.from_pretrained(MODEL_PATH)
-
-    # Load base model
-    base_model = AutoModelForCausalLM.from_pretrained(
-        peft_config.base_model_name_or_path,
+    MODEL_PATH = "./deepseek-math-1.3b-final-3"
+    model = AutoModelForCausalLM.from_pretrained(
+        MODEL_PATH,
         device_map="auto",
         torch_dtype=torch.float16,
         load_in_4bit=True
     )
-
-    # Load LoRA adapter weights
-    model = PeftModel.from_pretrained(base_model, MODEL_PATH)
-
-    # Load tokenizer
-    tokenizer = AutoTokenizer.from_pretrained(peft_config.base_model_name_or_path)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     tokenizer.pad_token = tokenizer.eos_token
-
     return model, tokenizer
 
 # ---------------------------------------
@@ -127,7 +113,7 @@ def main():
         if st.session_state.history:
             for i, item in enumerate(reversed(st.session_state.history)):
                 st.markdown(f"**Q{i+1}:** {item['question']}")
-                if st.button(f"View Solution {i}", key=f"view_{i}"):
+                if st.button(f"View Solution {i+1}", key=f"view_{i}"):
                     st.session_state.current_response = item['response']
                     st.session_state.current_final = item['final_answer']
         else:
