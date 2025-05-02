@@ -1,8 +1,11 @@
+!pip install accelerate
+
 import streamlit as st
 import re
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from accelerate import Accelerator
+
 
 # ---------------------------------------
 # 1. PAGE CONFIGURATION
