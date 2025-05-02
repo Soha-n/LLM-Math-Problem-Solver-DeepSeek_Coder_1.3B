@@ -16,7 +16,7 @@ st.title("🧮 Math Problem Solver")
 # ---------------------------------------
 @st.cache_resource
 def load_model_and_tokenizer():
-    MODEL_PATH = "/content/drive/MyDrive/MINI_Project_2/deepseek-math-1.3b-final-3"
+    MODEL_PATH = "./deepseek-math-1.3b-final-3"
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_PATH,
         device_map="auto",
