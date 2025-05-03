@@ -17,12 +17,19 @@ st.title("🧮 Math Problem Solver")
 @st.cache_resource
 def load_model_and_tokenizer():
     MODEL_PATH = "./deepseek-math-1.3b-final-3"
-    model = AutoModelForCausalLM.from_pretrained(
-        MODEL_PATH,
-        device_map="auto",
-        torch_dtype=torch.float16,
-        load_in_4bit=True
-    )
+    if torch.cuda.is_available():
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_PATH,
+            device_map="auto",
+            torch_dtype=torch.float16,
+            load_in_4bit=True
+        )
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            MODEL_PATH,
+            device_map="cpu",
+            torch_dtype=torch.float32  # safe for CPU
+        )
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
     tokenizer.pad_token = tokenizer.eos_token
     return model, tokenizer
