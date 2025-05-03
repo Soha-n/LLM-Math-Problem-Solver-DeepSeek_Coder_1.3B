@@ -1,5 +1,5 @@
 streamlit==1.37.1
-accelerate==0.20.3
+accelerate
 transformers==4.39.3
 torch==2.7.0
 bitsandbytes==0.40.0
