@@ -1,6 +1,6 @@
-streamlit==1.37.1
+streamlit
 accelerate
-transformers==4.39.3
-torch==2.7.0
-bitsandbytes==0.40.0
-peft==0.1.0
+transformers
+torch
+bitsandbytes
+peft
